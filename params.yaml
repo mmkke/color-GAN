@@ -1,0 +1,74 @@
+
+Notes: | # Any notes to save in run config file
+    Training run with patch discriminator on 10000 images for the COCO dataset.
+    Loss:
+      content_loss: 'L1'
+      adversarial_loss: 'BCE'
+    Models:
+      generator: 'UNet'
+      discriminator: 'Discriminator'
+
+
+data: # path to image files
+  coco_path: "/Users/mikey/.fastai/data/coco_sample/train_sample"
+  num_imgs: 20 # number of images to import for train/val
+  split: 0.8  # train split ratio
+  image_size: 256
+
+training: # GAN training
+  batch_size: 8
+  epochs: 3
+  lambda_l1: 100 # 
+  show_fig: False   # Control whether images are shown during training
+  save_images: True  # Control whether images are saved during training
+
+pretrained: # if loading pretrained model weights or optimizer states
+  checkpoint_path: null
+  load_gen_state: False
+  load_disc_state: False
+  load_optim_states: False
+
+loss:
+  adversarial: "BCEWithLogitsLoss"
+  content: "L1"
+
+optimizer_D: # optimizer params for discriminator
+  type: "Adam"
+  lr: 0.00002
+  beta1: 0.5
+  beta2: 0.999
+  weight_decay: 0.0001
+  momentum: null
+  
+optimizer_G: # optimizer params for generator
+  type: "Adam"
+  lr: 0.002
+  beta1: 0.5
+  beta2: 0.999
+  weight_decay: 0
+  momentum: null
+    
+scheduler_D: # learning rate scheduler params for discriminator
+  mode: 'min'
+  factor: 0.5
+  patience: 5
+  verbose: True
+
+scheduler_G: # learning rate scheduler params for generator
+  mode: 'min'
+  factor: 0.5
+  patience: 5
+  verbose: True
+
+init_D: # discriminator model weight intialization
+  init_type: "norm"
+  gain: 0.02
+
+init_G: # generator model weight intialization
+  init_type: "xavier"
+  gain: 0.02
+
+output:
+  base_dir: "training_runs"
+  run_dir: "test_21"
+  training_results_csv: "training_results.csv"

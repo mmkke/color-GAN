@@ -1,0 +1,22 @@
+name: GAN_env_CUDA11_8
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.9           # or 3.9 if needed
+  - numpy
+  - pandas
+  - matplotlib
+  - tqdm
+  - pillow
+  - scikit-image
+  - pytorch
+  - torchvision
+  #- cudatoolkit=11.8     # Adjust this to match your installed CUDA drivers on discovery
+  - torchaudio
+  - pip
+  - pyyaml
+  - jupyterlab
+  - fastai
