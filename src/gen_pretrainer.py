@@ -29,6 +29,7 @@ def main():
     model = PretrainGenerator(size, batch_size, epochs, lr, beta1, beta2, l1_loss, run, start_epoch)
     model.set_model()
     model.load_state(checkpoint_path)
+    model.train()
 
 if __name__ == "__main__":
     main()
