@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 Nelson Farrell & Michael Massone
 Image Enhancement: Colorization - cGAN
@@ -14,7 +15,9 @@ from utils.pretrain_utils import *
 def main():
 
     # params
-    checkpoint_path = "/home/farrell.jo/cGAN_grey_to_color/models/generator_train/Res_full_data_3/gen_weights/checkpoint_epoch_181.pth"
+    checkpoint_path = None
+    load_previous_state = False
+    data_dir = "/Users/nelsonfarrell/.fastai/data/coco_sample/train_sample"
     size = 256
     batch_size = 32
     epochs = 101
@@ -27,9 +30,11 @@ def main():
 
     # train model
     model = PretrainGenerator(size, batch_size, epochs, lr, beta1, beta2, l1_loss, run, start_epoch)
+    model.set_train_and_val_paths(data_dir)
     model.set_model()
-    model.load_state(checkpoint_path)
-    model.train()
+    if load_previous_state:
+        model.load_state(checkpoint_path)
+    model.train_model()
 
 if __name__ == "__main__":
     main()

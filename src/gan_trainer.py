@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 """
 Nelson Farrell & Michael Massone
 Image Enhancement: Colorization - cGAN

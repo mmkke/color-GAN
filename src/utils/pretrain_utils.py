@@ -10,20 +10,15 @@ The U-Net created will have pretrained ResNet18 backbone.
 """
 ##################################################### Packages ###################################################################
 import os
-import glob
-import time
 import numpy as np
-from PIL import Image
 from pathlib import Path
 from tqdm.notebook import tqdm
 import matplotlib.pyplot as plt
 from skimage.color import rgb2lab, lab2rgb
 
-import glob
 import torch
 from torch.utils.data import DataLoader
-#from discriminator import *
-from src.utils.gan_utils import *
+from gan_utils import *
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -62,7 +57,7 @@ class PretrainGenerator:
         self.image_size = image_size
         self.batch_size = batch_size
         self.lr = lr
-        self.beta = beta1
+        self.beta1 = beta1
         self.beta2 = beta2
         self.loss = loss
         self.run = run
@@ -87,11 +82,11 @@ class PretrainGenerator:
         self.val_paths = None
         self.train_paths = None
 
-    def set_train_and_val_paths(self) -> None:
+    def set_train_and_val_paths(self, data_dir:str) -> None:
         """
         Implement me
         """
-        raise NotImplementedError
+        self.train_paths, self.val_paths = select_images(data_dir)
         
     def set_model(self, model:callable = None, use_res_net:bool = True) -> None:
         """
@@ -99,7 +94,7 @@ class PretrainGenerator:
         """
         if use_res_net:
             body = create_body(resnet18, pretrained=True, n_in=1, cut=-2)
-            net_G = DynamicUnet(body, 2, (self.size, self.size)).to(device)
+            net_G = DynamicUnet(body, 2, (self.batch_size, self.batch_size)).to(device)
             self.model = net_G
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
             return
@@ -123,19 +118,20 @@ class PretrainGenerator:
             print("Error loading generator weights!")
         return
 
-    def set_data_loaders(self, path_to_data:str, perform_checks:bool = True) -> None:
+    def set_data_loaders(self, perform_checks:bool = True) -> None:
         """
         Set up the dataloaders
         """
-        self.train_ds = ColorizationDataset(self.size, paths = self.train_paths, split = "train")
-        self.val_ds = ColorizationDataset(self.size, paths = self.val_paths, split = "val")
+        self.train_ds = ColorizationDataset(self.batch_size, paths = self.train_paths, split = "train")
+        self.val_ds = ColorizationDataset(self.batch_size, paths = self.val_paths, split = "val")
         self.train_dl = DataLoader(self.train_ds, batch_size = self.batch_size)
         self.val_dl = DataLoader(self.val_ds, batch_size = self.batch_size)
 
         if perform_checks:
             data = next(iter(self.train_dl))
             Ls, abs_ = data['L'], data['ab']
-            assert Ls.shape == torch.Size([self.batch_size, 1, self.size, self.size]) and abs_.shape == torch.Size([self.batch_size, 2, self.size, self.size])
+            assert Ls.shape == torch.Size([self.batch_size, 1, self.batch_size, self.batch_size])
+            assert abs_.shape == torch.Size([self.batch_size, 2, self.batch_size, self.batch_size])
             print(Ls.shape, abs_.shape)
             print(len(self.train_dl), len(self.val_dl))
 
@@ -203,7 +199,7 @@ class PretrainGenerator:
                 pbar.set_postfix(G_loss=LOSS.item())
     
                 # Create the directory to save iamges in
-                image_save_dir = f"/home/farrell.jo/cGAN_grey_to_color/models/generator_train/{self.run}/val_images/"
+                image_save_dir = f"{str(Path.cwd())}/training_runs/{self.run}/val_images/"
                 os.makedirs(image_save_dir, exist_ok=True)
                 image_save_path = image_save_dir + f"epoch_{epoch}.png"
                 
@@ -266,7 +262,7 @@ class PretrainGenerator:
         Generates and saves loss versus epoch plot
         """
         # Create fig
-        figs_save_dir = f"/home/farrell.jo/cGAN_grey_to_color/models/generator_train/{self.run}/loss_figs/"
+        figs_save_dir = f"{str(Path.cwd())}/training_runs/{self.run}/loss_figs/"
         os.makedirs(figs_save_dir, exist_ok=True)
         figs_save_path = figs_save_dir + f"epoch_{epoch}.png"
                 
@@ -324,6 +320,8 @@ class PretrainGenerator:
         """
         raise NotImplementedError
 
+#home = Path.cwd()
+#print(home)
 if __name__ == "__main__":
     pass
 
