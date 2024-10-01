@@ -1,0 +1,56 @@
+Notes: "Training run with patch discriminator on 10000 images for the COCO dataset.\n\
+  Loss:\n  content_loss: 'L1'\n  adversarial_loss: 'BCE'\nModels:\n  generator: 'UNet'\n\
+  \  discriminator: 'Discriminator'\n"
+data:
+  coco_path: /Users/mikey/.fastai/data/coco_sample/train_sample
+  image_size: 256
+  num_imgs: 20
+  split: 0.8
+init_D:
+  gain: 0.02
+  init_type: norm
+init_G:
+  gain: 0.02
+  init_type: xavier
+loss:
+  adversarial: BCEWithLogitsLoss
+  content: L1
+optimizer_D:
+  beta1: 0.5
+  beta2: 0.999
+  lr: 2.0e-05
+  momentum: null
+  type: Adam
+  weight_decay: 0.0001
+optimizer_G:
+  beta1: 0.5
+  beta2: 0.999
+  lr: 0.002
+  momentum: null
+  type: Adam
+  weight_decay: 0
+output:
+  base_dir: training_runs
+  run_dir: test_21
+  training_results_csv: training_results.csv
+pretrained:
+  checkpoint_path: null
+  load_disc_state: false
+  load_gen_state: false
+  load_optim_states: false
+scheduler_D:
+  factor: 0.5
+  mode: min
+  patience: 5
+  verbose: true
+scheduler_G:
+  factor: 0.5
+  mode: min
+  patience: 5
+  verbose: true
+training:
+  batch_size: 8
+  epochs: 3
+  lambda_l1: 100
+  save_images: true
+  show_fig: false

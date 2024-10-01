@@ -9,7 +9,7 @@ This file contains a class that will create and train U-Net for the task of colo
 The U-Net will created will have pretrained ResNet18 backbone.
 """
 ##################################################### Packages ###################################################################
-from utils.pretrain_generator_class import *
+from utils.pretrain_utils import *
 
 def main():
 
