@@ -18,7 +18,7 @@ from skimage.color import rgb2lab, lab2rgb
 
 import torch
 from torch.utils.data import DataLoader
-from gan_utils import *
+from utils.gan_utils import *
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -86,7 +86,7 @@ class PretrainGenerator:
         """
         Implement me
         """
-        self.train_paths, self.val_paths = select_images(data_dir)
+        self.train_paths, self.val_paths = select_images(data_dir, 10_000)
         
     def set_model(self, model:callable = None, use_res_net:bool = True) -> None:
         """
