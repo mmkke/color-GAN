@@ -2,7 +2,7 @@
     Converting Grey Scale to Color using A GAN  
     09.27.2024
     CS 7180 Advanced Perception - Prof. Bruce Maxwell, PhD.
-
+    Time Travel days: 3
 ---
 
 # Grayscale to Color Image Conversion using GAN
