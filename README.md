@@ -49,7 +49,7 @@ The model is trained on a dataset of natural images, and the results include bot
 
 ## Operating System
 
-Local: MacOS with M1
+Local: MacOS with M1  
 Discovery Cluster: CentOS (Linux)
 
 ## Installation
@@ -86,7 +86,7 @@ Optional pretraining of Generator model.
 
 To train the GAN model on your dataset:
 
-1. Set the `data_path` in `config.yml` to the directory containing your dataset.
+1. Set the `data_path` in `params.yml` to the directory containing your dataset.
    
 2. Update the configuration in `params.yml` to match your dataset and training requirements.
 
