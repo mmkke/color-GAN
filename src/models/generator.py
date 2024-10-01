@@ -1,9 +1,24 @@
+"""
+Nelson Farrell & Michael Massone
+Image Enhancement: Colorization - cGAN
+CS 7180 Advanced Perception
+Bruce Maxwell, PhD.
+09-28-2024
+
+This file cotains various implementations of generator networks
+"""
+########################################################## Packages ######################################################## 
 import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchvision import transforms
+from torchvision.models import ResNet34_Weights, ResNet50_Weights
 
+########################################################## Generator 1 ######################################################## 
 class UnetBlock(nn.Module):
+    """
+    Generator based on the work of Isola et al.
+    """
     def __init__(self, nf,          # number of output filters
                  ni,                # number of input filters
                  submodule=None,    # name of next bock int he chain
@@ -49,6 +64,9 @@ class UnetBlock(nn.Module):
             return torch.cat([x, self.model(x)], 1)
 
 class UNet(nn.Module):
+    """
+    Generator based on the work of Isola et al.
+    """
     def __init__(self, input_c=1, output_c=2, n_down=8, num_filters=64):
         super().__init__()
         # Innermost block
@@ -76,8 +94,8 @@ class UNet(nn.Module):
 
     def forward(self, x):
         return self.model(x)
-from torchvision.models import ResNet34_Weights, ResNet50_Weights
 
+########################################################## Generator 2 ########################################################
 class UNetResNetGenerator(nn.Module):
     def __init__(self, input_channels=1, output_channels=2, base_model="resnet34", pretrained=True):
         super(UNetResNetGenerator, self).__init__()
@@ -136,6 +154,8 @@ class UNetResNetGenerator(nn.Module):
         out = self.final_conv(u5)
         return torch.tanh(out)
 
+
+########################################################## Generator 3 ########################################################
 class UNetGenerator(nn.Module):
     def __init__(self, input_channels=1, output_channels=2, num_filters=64):
         super(UNetGenerator, self).__init__()
@@ -207,6 +227,7 @@ class UNetGenerator(nn.Module):
 
         # Final output layer
         return torch.tanh(self.final_conv(u5))  # Output 2x256x256 (ab channels)
-    
+
+ ########################################################## End ########################################################   
 if __name__ == "__main__":
     pass

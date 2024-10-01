@@ -5,8 +5,8 @@ CS 7180 Advanced Perception
 Bruce Maxwell, PhD.
 09-28-2024
 
-This file contains a class that will create and train U-Net for the task of colorization.
-The U-Net will created will have pretrained ResNet18 backbone.
+This file contains a class that will create and train a U-Net for the task of colorization.
+The U-Net created will have pretrained ResNet18 backbone.
 """
 ##################################################### Packages ###################################################################
 import os
@@ -23,7 +23,8 @@ import glob
 import torch
 from torch.utils.data import DataLoader
 #from discriminator import *
-from gan_utils_new import *
+from src.utils.gan_utils import *
+
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -59,7 +60,7 @@ class PretrainGenerator:
         See methods to perform sets.
         """
         self.image_size = image_size
-        self.batch_size = 256
+        self.batch_size = batch_size
         self.lr = lr
         self.beta = beta1
         self.beta2 = beta2
@@ -82,6 +83,15 @@ class PretrainGenerator:
 
         self.train_loss_generator = []
         self.val_loss_generator = []
+
+        self.val_paths = None
+        self.train_paths = None
+
+    def set_train_and_val_paths(self) -> None:
+        """
+        Implement me
+        """
+        raise NotImplementedError
         
     def set_model(self, model:callable = None, use_res_net:bool = True) -> None:
         """
@@ -117,17 +127,17 @@ class PretrainGenerator:
         """
         Set up the dataloaders
         """
-        self.train_ds = ColorizationDataset(size, paths = train_paths, split = "train")
-        self.val_ds = ColorizationDataset(size, paths = val_paths, split = "val")
-        self.train_dl = DataLoader(train_ds, batch_size = self.batch_size)
-        self.val_dl = DataLoader(val_ds, batch_size = self.batch_size)
+        self.train_ds = ColorizationDataset(self.size, paths = self.train_paths, split = "train")
+        self.val_ds = ColorizationDataset(self.size, paths = self.val_paths, split = "val")
+        self.train_dl = DataLoader(self.train_ds, batch_size = self.batch_size)
+        self.val_dl = DataLoader(self.val_ds, batch_size = self.batch_size)
 
         if perform_checks:
             data = next(iter(self.train_dl))
             Ls, abs_ = data['L'], data['ab']
             assert Ls.shape == torch.Size([self.batch_size, 1, self.size, self.size]) and abs_.shape == torch.Size([self.batch_size, 2, self.size, self.size])
             print(Ls.shape, abs_.shape)
-            print(len(train_dl), len(val_dl))
+            print(len(self.train_dl), len(self.val_dl))
 
         return
 
@@ -182,7 +192,7 @@ class PretrainGenerator:
                 L, abs_ = L.to(self.device), abs_.to(self.device)
     
                  # Evaluate the generator
-                generated_abs = generator(L)
+                generated_abs = self.model(L)
                 LOSS = self.loss(generated_abs, abs_) 
         
                 # Accumulate losses
@@ -273,13 +283,13 @@ class PretrainGenerator:
         """
         Saves the current model state
         """
-        # Create the directory to save weights in
+        # Path to model weights location 
         state_save_dir = f"/home/farrell.jo/cGAN_grey_to_color/models/generator_train/{self.run}/gen_weights/"
     
         # Ensure the directory exists
         os.makedirs(state_save_dir, exist_ok=True)
     
-        # Define paths for generator and discriminator weights
+        # Update path with file name
         state_save_path = os.path.join(state_save_dir, f'checkpoint_epoch_{epoch}.pth')
     
         # Save the model weights

@@ -9,6 +9,7 @@
 
 # Exclude any model_weights directory
 model_weights/
+model_checkpoints/
 
 # Optionally, exclude other machine learning related files, like:
 # TensorFlow checkpoints
