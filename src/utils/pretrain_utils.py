@@ -40,7 +40,8 @@ def build_res_unet(n_input=1, n_output=2, size=256):
     Builds ResNet18 based U-Net
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    body = create_body(resnet18, pretrained=True, n_in=n_input, cut=-2)
+    resnet_model = resnet18(pretrained=True)
+    body = create_body(resnet_model, pretrained=True, n_in=n_input, cut=-2)
     net_G = DynamicUnet(body, n_output, (size, size)).to(device)
     return net_G
 
@@ -82,21 +83,27 @@ class PretrainGenerator:
         self.val_paths = None
         self.train_paths = None
 
-    def set_train_and_val_paths(self, data_dir:str) -> None:
+    def set_train_and_val_paths(self, data_dir:str, num_images:int) -> None:
         """
         Implement me
         """
-        self.train_paths, self.val_paths = select_images(data_dir, 10_000)
+        self.train_paths, self.val_paths = select_images(data_dir, num_images)
         
     def set_model(self, model:callable = None, use_res_net:bool = True) -> None:
         """
         Set the generator model and optimizer, default is to use a U-Net with a ResNet18 backbone
         """
         if use_res_net:
-            body = create_body(resnet18, pretrained=True, n_in=1, cut=-2)
+            resnet_model = resnet18(pretrained=True)
+            body = create_body(resnet_model, pretrained=True, n_in=1, cut=-2)
             net_G = DynamicUnet(body, 2, (self.batch_size, self.batch_size)).to(device)
             self.model = net_G
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
+            self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 
+                                                       mode= "min", 
+                                                       factor= 0.5, 
+                                                       patience= 5,
+                                                       verbose=True)
             return
         else:
             self.model = model
@@ -203,8 +210,8 @@ class PretrainGenerator:
                 os.makedirs(image_save_dir, exist_ok=True)
                 image_save_path = image_save_dir + f"epoch_{epoch}.png"
                 
-                if epoch % 10 == 1:
-                    self.plot_batch(L, generated_abs, abs_, False, image_save_path)
+                if epoch % 10 == 0:
+                    self.plot_batch(L, generated_abs, abs_, show = False, save_path = image_save_path)
         
         # Calculate average validation loss
         avg_val_loss = epoch_val_loss / num_batches
@@ -212,7 +219,7 @@ class PretrainGenerator:
         print(f"Avg Validation Loss: {avg_val_loss}")
         return
 
-    def plot_batch(L, generated_abs, real_abs, show=True, save_path=None) -> None:
+    def plot_batch(self, L, generated_abs, real_abs, show=True, save_path=None) -> None:
         """
         Plot or save 4 images.
     
@@ -320,8 +327,7 @@ class PretrainGenerator:
         """
         raise NotImplementedError
 
-#home = Path.cwd()
-#print(home)
+print("This works!!")
 if __name__ == "__main__":
     pass
 

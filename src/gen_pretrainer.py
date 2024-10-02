@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+
 """
 Nelson Farrell & Michael Massone
 Image Enhancement: Colorization - cGAN
@@ -32,7 +32,8 @@ def main():
 
     # train model
     model = PretrainGenerator(size, batch_size, epochs, lr, beta1, beta2, l1_loss, run, start_epoch)
-    model.set_train_and_val_paths(paths)
+    model.set_train_and_val_paths(paths, 100)
+    model.set_data_loaders()
     model.set_model()
     if load_previous_state:
         model.load_state(checkpoint_path)
