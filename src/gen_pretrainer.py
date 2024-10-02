@@ -20,6 +20,7 @@ def main():
     load_previous_state = False
     data_dir = "/Users/nelsonfarrell/.fastai/data/coco_sample/train_sample"
     paths = glob.glob(data_dir + "/*.jpg")
+    num_images = 10000
     size = 256
     batch_size = 32
     epochs = 101
@@ -32,7 +33,7 @@ def main():
 
     # train model
     model = PretrainGenerator(size, batch_size, epochs, lr, beta1, beta2, l1_loss, run, start_epoch)
-    model.set_train_and_val_paths(paths, 100)
+    model.set_train_and_val_paths(paths, num_images)
     model.set_data_loaders()
     model.set_model()
     if load_previous_state:
